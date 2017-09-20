@@ -15,13 +15,11 @@ public class SpellCorrector implements ISpellCorrector{
 		while(scan.hasNext()){
 			word = scan.next().toLowerCase();
 			trie.add(word);
-			System.out.print(word);
-			System.out.print("\n");
 		}
 		scan.close();
 	}
 
-	public String suggestSimilarWord(String inputWord) throws NoSimilarWordFoundException{
+	public String suggestSimilarWord(String inputWord){
 		Set<String> edit1 = new TreeSet<String>();
 		inputWord = inputWord.toLowerCase();
 		if(trie.find(inputWord) != null){
@@ -36,8 +34,7 @@ public class SpellCorrector implements ISpellCorrector{
 				Set<String> edit2 = createEdit2(edit1);
 				suggestedWord = suggestWord(edit2);
 				if(suggestedWord == null)
-					throw new NoSimilarWordFoundException();
-			}
+					return null;			}
 			return suggestedWord;
 		}
 	}
@@ -94,7 +91,7 @@ public class SpellCorrector implements ISpellCorrector{
 			char temp = c[i];
 			c[i] = c[i+1];
 			c[i+1] = temp;
-			String transposed = String.valueOf(temp);
+			String transposed = new String(c);
 			edit.add(transposed);
 			c = word.toCharArray();
 		}

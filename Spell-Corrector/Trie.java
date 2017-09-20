@@ -25,12 +25,17 @@ public class Trie implements ITrie{
 			if(n.nodeArray[word.charAt(i) - 'a'] == null){
 				n.nodeArray[word.charAt(i) - 'a'] = new Node();
 				n.nodeArray[word.charAt(i) - 'a'].substr = word.substring(0, i + 1);
-				wordCount++;
+				nodeCount++;
 				if(i == word.length() - 1){
 					n.nodeArray[word.charAt(i) - 'a'].substr = word.substring(0, i + 1);
 					wordCount++;
 					n.nodeArray[word.charAt(i) - 'a'].frequency++;
 				}
+				n = n.nodeArray[word.charAt(i) - 'a'];
+			} else {
+				if( i == word.length() -1){
+					n.nodeArray[word.charAt(i) - 'a'].frequency++;
+				} else 
 				n = n.nodeArray[word.charAt(i) - 'a'];
 			}
 		}
@@ -67,7 +72,7 @@ public class Trie implements ITrie{
 	}
 
 	@Override
-	public int hashCode() { return wordCount * 11 * nodeCount * 17;}
+	public int hashCode() { return wordCount * 12 * nodeCount * 17;}
 
 	@Override
 	public boolean equals(Object o){

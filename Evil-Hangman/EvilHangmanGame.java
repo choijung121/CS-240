@@ -39,8 +39,9 @@ public class EvilHangmanGame implements IEvilHangmanGame {
 
     public String getFirstPattern(){
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < inputWordLen; i++)
+        for(int i = 0; i < inputWordLen; i++){
             sb.append('-');
+        }
         return sb.toString();
     }
 
@@ -52,6 +53,8 @@ public class EvilHangmanGame implements IEvilHangmanGame {
         usedLetters.add(guessString);
         buildMap(guess);
         String key = chooseKey(guess);
+        System.out.println("key = " + key);
+        System.out.println("current words " + wordMap.get(key));
         currentWords = wordMap.get(key);
         return currentWords;
     }
@@ -68,6 +71,7 @@ public class EvilHangmanGame implements IEvilHangmanGame {
                 wordMap.put(pattern, currentPattern);
             }
         }
+        System.out.println("map " + wordMap.toString());
     }
 
     public String createPattern(String currentWord, char guess){
@@ -90,8 +94,9 @@ public class EvilHangmanGame implements IEvilHangmanGame {
             filterFreq(guess);
             if(wordMap.size() > 1){
                 FilterRight(guess);
-                for(String s : wordMap.keySet())
+                for(String s : wordMap.keySet()){
                     key = s;
+                }
             } else {
                 for(String s : wordMap.keySet())
                     key = s;
@@ -116,6 +121,7 @@ public class EvilHangmanGame implements IEvilHangmanGame {
                 filter.add(entry.getKey());
         }
         wordMap.keySet().removeAll(filter);
+
     }
 
     public void filterFreq(char guess){
@@ -155,7 +161,10 @@ public class EvilHangmanGame implements IEvilHangmanGame {
             if(!entry.getKey().equals(comparing))
                 filter.add(entry.getKey());
         }
+        System.out.println("filter " + filter.toString());
         wordMap.keySet().removeAll(filter);
+                System.out.println("filter right " + wordMap);
+
     }
 
     public Set<String> getUsedLetters(){return usedLetters;}

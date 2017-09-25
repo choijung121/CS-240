@@ -26,6 +26,7 @@ public class Main{
 
 	public static void runGame(EvilHangmanGame game, int guesses){
 		Set<String> usedLetters = game.getUsedLetters();
+                System.out.println("used letters " + usedLetters);
 		String pattern = game.getFirstPattern();
 		printGame(guesses, usedLetters, pattern);
 		Scanner input = new Scanner(System.in);
@@ -34,13 +35,11 @@ public class Main{
 		while(guesses > 0){
 			Set<String> results = new TreeSet<String>();
 			inputChar = input.nextLine().toLowerCase();
-			if(inputChar.length() > 1 || Character.isWhitespace(inputChar.charAt(0)) || !Character.isLetter(inputChar.charAt(0))){
+			if(inputChar.length() != 1 || Character.isWhitespace(inputChar.charAt(0)) || !Character.isLetter(inputChar.charAt(0))){
 				System.out.print("Invalid character, try again: ");
 				continue;
 			}
-			if(inputChar.length() > 0){
-				guess = inputChar.charAt(0);
-			}
+                        guess = inputChar.charAt(0);
 			try{
 				results = game.makeGuess(guess);
 				pattern = game.getPattern();

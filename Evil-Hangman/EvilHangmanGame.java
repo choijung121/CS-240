@@ -177,9 +177,7 @@ public class EvilHangmanGame implements IEvilHangmanGame{
                 filter.add(entry.getKey());
             }
         }
-        System.out.println(filter);
         wordMap.keySet().removeAll(filter);
-        System.out.println(wordMap);
     }
     
     public Set<String> getUsedLetters() {

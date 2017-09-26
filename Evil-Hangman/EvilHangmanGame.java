@@ -8,35 +8,39 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class EvilHangmanGame implements IEvilHangmanGame {
+public class EvilHangmanGame implements IEvilHangmanGame{
 
     Set<String> currentWords = new TreeSet<String>();
     Map<String, Set<String>> wordMap = new TreeMap<String, Set<String>>();
     Set<String> usedLetters = new TreeSet<String>();
     String pattern = "";
     int inputWordLen = 0;
-
+    
     @Override
-    public void startGame(File dictionary, int wordLength){
-        wordMap.clear();
+    public void startGame(File dictionary, int wordLength) {
+        wordMap.clear(); // protects against calling startGame within a game
         Scanner s = null;
         inputWordLen = wordLength;
         pattern = getFirstPattern();
-        try{
+        try {
             s = new Scanner(dictionary);
         }
-        catch(FileNotFoundException e){
+        catch (FileNotFoundException e){
             e.printStackTrace();
         }
+        
         while(s.hasNext()){
             String currentWord = s.next();
-            if(currentWord.length() == wordLength)
+            if (currentWord.length() == wordLength){
                 currentWords.add(currentWord);
+            }
         }
-        if(s != null)
+        
+        if(s != null){
             s.close();
+        }   
     }
-
+    
     public String getFirstPattern(){
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < inputWordLen; i++){
@@ -46,128 +50,144 @@ public class EvilHangmanGame implements IEvilHangmanGame {
     }
 
     @Override
-    public Set<String> makeGuess(char guess) throws GuessAlreadyMadeException{
+    public Set<String> makeGuess(char guess) throws GuessAlreadyMadeException {
         String guessString = Character.toString(guess);
-        if(usedLetters.contains(guessString))
+        if (usedLetters.contains(guessString)){
             throw new GuessAlreadyMadeException();
+        }
         usedLetters.add(guessString);
         buildMap(guess);
         String key = chooseKey(guess);
-        System.out.println("key = " + key);
-        System.out.println("current words " + wordMap.get(key));
         currentWords = wordMap.get(key);
         return currentWords;
     }
-
+    
     public void buildMap(char guess){
         wordMap.clear();
         for(String word : currentWords){
             String pattern = createPattern(word, guess);
-            if(wordMap.containsKey(pattern))
+            if (wordMap.containsKey(pattern)){
                 wordMap.get(pattern).add(word);
-            else{
+            }
+            else {
                 Set<String> currentPattern = new TreeSet<String>();
                 currentPattern.add(word);
                 wordMap.put(pattern, currentPattern);
             }
         }
-        System.out.println("map " + wordMap.toString());
     }
-
+    
     public String createPattern(String currentWord, char guess){
         StringBuilder sb = new StringBuilder("");
-        for(int i = 0; i < currentWord.length(); i++){
-            if(currentWord.charAt(i) == guess)
+        for (int i = 0; i < currentWord.length(); i++){
+            if (currentWord.charAt(i) == guess){
                 sb.append(guess);
-            else if(pattern.charAt(i) != '-')
+            }
+            else if (pattern.charAt(i) != '-'){
                 sb.append(pattern.charAt(i));
-            else
+            }
+            else {
                 sb.append('-');
+            }
         }
         return sb.toString();
     }
-
+    
     public String chooseKey(char guess){
         String key = "";
         filterSize();
-        if(wordMap.size() > 1){
+        if (wordMap.size() > 1){
             filterFreq(guess);
-            if(wordMap.size() > 1){
-                FilterRight(guess);
-                for(String s : wordMap.keySet()){
+            if (wordMap.size() > 1){
+                filterRight (guess);
+                for (String s : wordMap.keySet()){
                     key = s;
                 }
-            } else {
-                for(String s : wordMap.keySet())
-                    key = s;
             }
-        } else {
-            for(String s : wordMap.keySet())
+            else {
+                for (String s : wordMap.keySet()){
+                    key = s;
+                }
+            }
+        }
+        else {
+            for (String s : wordMap.keySet()){
                 key = s;
+            }
         }
         pattern = key;
         return key;
     }
-
-    public void filterSize(){
+    
+    public void filterSize() {
         int maxSize = 0;
-        for(Map.Entry<String, Set<String>> entry :wordMap.entrySet()){
-            if(maxSize < entry.getValue().size())
+        for (Map.Entry<String, Set<String>> entry : wordMap.entrySet()){
+            if (maxSize < entry.getValue().size()){
                 maxSize = entry.getValue().size();
+            }
         }
         Set<String> filter = new TreeSet<String>();
-        for(Map.Entry<String, Set<String>> entry : wordMap.entrySet()){
-            if(maxSize != entry.getValue().size())
+        for (Map.Entry<String, Set<String>> entry : wordMap.entrySet()){
+            if (entry.getValue().size() != maxSize){
                 filter.add(entry.getKey());
+            }
         }
         wordMap.keySet().removeAll(filter);
-
     }
-
+    
     public void filterFreq(char guess){
         int least = 100;
-        for(Map.Entry<String, Set<String>> entry : wordMap.entrySet()){
+        for(Map.Entry<String, Set<String>> entry: wordMap.entrySet()){
             int freq = 0;
             for(int i = 0; i < entry.getKey().length(); i++){
-                if(entry.getKey().charAt(i) == guess)
+                if(entry.getKey().charAt(i) == guess){
                     freq++;
+                }
             }
-            if(freq < least)
+            if(freq < least){
                 least = freq;
+            }
         }
         Set<String> filter = new TreeSet<String>();
-        for(Map.Entry<String, Set<String>> entry : wordMap.entrySet()){
+        for(Map.Entry<String, Set<String>> entry: wordMap.entrySet()){
             int frequency = 0;
             for(int i = 0; i < entry.getKey().length(); i++){
                 if(entry.getKey().charAt(i) == guess){
                     frequency++;
                 }
             }
-            if(frequency != least)
+            if(frequency != least){
                 filter.add(entry.getKey());
+            }
         }
         wordMap.keySet().removeAll(filter);
     }
-
-    public void FilterRight(char guess){
-        String comparing = "-";
-        for(Map.Entry<String, Set<String>> entry : wordMap.entrySet()){
+    
+    public void filterRight(char guess){
+        String comparing = "~";
+        for(Map.Entry<String, Set<String>> entry: wordMap.entrySet()){
             String current = entry.getKey();
-            if(current.compareTo(comparing) < 0)
+            if(current.compareTo(comparing) < 0){
                 comparing = current;
+            }
         }
-        Set<String> filter = new TreeSet<String>();
-        for(Map.Entry<String, Set<String>> entry : wordMap.entrySet()){
-            if(!entry.getKey().equals(comparing))
+        Set<String>filter = new TreeSet<String>();
+        for(Map.Entry<String, Set<String>> entry: wordMap.entrySet()){
+            if(!entry.getKey().equals(comparing)){
                 filter.add(entry.getKey());
+            }
         }
-        System.out.println("filter " + filter.toString());
+        System.out.println(filter);
         wordMap.keySet().removeAll(filter);
-                System.out.println("filter right " + wordMap);
-
+        System.out.println(wordMap);
     }
-
-    public Set<String> getUsedLetters(){return usedLetters;}
-    public String getPattern(){return pattern;}
-
+    
+    public Set<String> getUsedLetters() {
+        return usedLetters;
+    }
+    
+    public String getPattern(){
+        return pattern;
+    }
+    
 }
